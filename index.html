@@ -19,6 +19,7 @@
         <button onclick="geocodeAddress()">Add to Heatmap</button>
     </div>
     <div id="map"></div>
+    <div id="coords" style="margin:10px;font-size:1.2em;"></div>
     <script>
         let map, heatmap;
         let heatmapData = [];
@@ -42,6 +43,8 @@
                     };
                     map.setCenter(pos);
                     addToHeatmap(pos);
+                    // Show coordinates as text
+                    document.getElementById('coords').textContent = `Your coordinates: Latitude ${pos.lat.toFixed(6)}, Longitude ${pos.lng.toFixed(6)}`;
                 });
             }
         }
