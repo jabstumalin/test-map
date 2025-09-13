@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Geolocation Heatmap</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        #map {
+            height: 90vh;
+            width: 100%;
+        }
+        #controls {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <input type="text" id="address" placeholder="Enter address">
+        <button onclick="geocodeAddress()">Add to Heatmap</button>
+    </div>
+    <div id="map"></div>
+    <script>
+        let map, heatmap;
+        let heatmapData = [];
+        function initMap() {
+            // Default center (will update with geolocation)
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 13,
+                center: { lat: 37.7749, lng: -122.4194 }, // San Francisco
+                mapTypeId: 'roadmap'
+            });
+            heatmap = new google.maps.visualization.HeatmapLayer({
+                data: heatmapData,
+                map: map
+            });
+            // Try geolocation
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    map.setCenter(pos);
+                    addToHeatmap(pos);
+                });
+            }
+        }
+        function addToHeatmap(location) {
+            heatmapData.push(new google.maps.LatLng(location.lat, location.lng));
+            heatmap.setData(heatmapData);
+        }
+        function geocodeAddress() {
+            const address = document.getElementById('address').value;
+            if (!address) return;
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ 'address': address }, function(results, status) {
+                if (status === 'OK') {
+                    const loc = results[0].geometry.location;
+                    addToHeatmap({ lat: loc.lat(), lng: loc.lng() });
+                    map.setCenter(loc);
+                } else {
+                    alert('Geocode was not successful: ' + status);
+                }
+            });
+        }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCzaZBHgVzRhx0qRR5q20G9edjKyB0iNzU&libraries=visualization&callback=initMap" async defer></script>
+</body>
+</html>
